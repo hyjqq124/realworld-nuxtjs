@@ -5,6 +5,7 @@
 
 module.exports = {
     router: {
+        linkActiveClass: 'active',
         extendRoutes(routes, resolve) {
             // 清空自动生成的路由表
             routes.splice(0);

@@ -10,13 +10,17 @@
                         <nuxt-link to="/login" v-if="!isLogin"
                             >Have an account?</nuxt-link
                         >
-                        <nuxt-link to="/register" v-if="!isLogin"
+                        <nuxt-link to="/register" v-if="isLogin"
                             >Need an account?</nuxt-link
                         >
                     </p>
 
                     <ul class="error-messages">
-                        <li>That email is already taken</li>
+                        <template v-for="(message, faild) in errors">
+                            <li v-for="(msg, index) in message" :key="index">
+                                {{ faild }} {{ msg }}
+                            </li>
+                        </template>
                     </ul>
 
                     <form @submit.prevent="onSubmit">
@@ -59,11 +63,14 @@
 </template>
 
 <script>
-import { login } from "@/api/user";
+import { login, register } from "@/api/user";
+// 仅在客户端加载 js-cookie
+const Cookie = process.client ? require('js-cookie') : undefined
 export default {
     name: "LoginIndex",
     computed: {
         isLogin() {
+            console.log(this.$route.name);
             return this.$route.name == "login";
         },
     },
@@ -74,12 +81,22 @@ export default {
                 email: "",
                 password: "",
             },
+            errors: {},
         };
     },
     methods: {
         async onSubmit() {
-            const { data } = await login({user: this.user});
-            console.log(data);
+            try {
+                const { data } = this.isLogin
+                    ? await login({ user: this.user })
+                    : await register({ user: this.user });
+                this.$router.replace("/");
+                this.$store.commit('setUser', data.user)
+                // 为了防止页面刷新数据丢失，我们需要把数据持久化
+                Cookie.set('user', data.user)
+            } catch (error) {
+                this.errors = error.response.data.errors;
+            }
         },
     },
 };

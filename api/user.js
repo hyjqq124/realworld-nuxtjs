@@ -9,3 +9,12 @@ export const login = data => {
         data
     })
 }
+
+// 用户注册
+export const register = data => {
+    return request({
+        method: 'POST',
+        url: '/api/users',
+        data
+    })
+}
