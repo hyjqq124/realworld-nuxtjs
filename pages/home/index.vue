@@ -74,7 +74,7 @@ export default {
       articles: data.articles,
       articlesCount: data.articlesCount,
     };
-  },
+  }
 };
 </script>
 
